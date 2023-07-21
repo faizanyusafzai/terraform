@@ -1,123 +1,89 @@
-name: Terraform CI/CD
+name: Terraform Validation and Release
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  terraform_validation:
+  validate:
     name: Terraform Validation
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set up Terraform
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: "1.0.9"  # Replace with your preferred Terraform version
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      - name: Terraform Validate
+      - name: Validate Terraform
         run: terraform validate
 
-  terraform_scan:
+  static-code-analysis:
+    name: Terraform Static Code Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Install Terraform TFLint
+        run: |
+          curl -L "$(curl -Ls https://api.github.com/repos/terraform-linters/tflint/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tflint.zip
+          unzip tflint.zip
+          chmod +x tflint
+          sudo mv tflint /usr/local/bin/
+
+      - name: Run Terraform TFLint
+        run: tflint
+
+  security-scanning:
     name: Terraform Security Scanning
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Run Terraform TFLint
-        uses: terraform-linters/tflint-action@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-  terraform_release:
-    name: Terraform Release
-    needs: [terraform_validation, terraform_scan]
+      - name: Install TFSec
+        run: |
+          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[] | select(.name | contains("linux_amd64") and contains("tfsec")) | .browser_download_url')" > tfsec.zip
+          unzip tfsec.zip
+          chmod +x tfsec
+          sudo mv tfsec /usr/local/bin/
+
+      - name: Run Terraform TFSec
+        run: tfsec
+
+  release:
+    name: Create GitHub Release
+    needs:
+      - validate
+      - static-code-analysis
+      - security-scanning
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'  # Only release on push to main branch
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Add steps to perform the actual Terraform deployment here, such as using Terraform Cloud/Enterprise or CLI commands.
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0  # Replace with your desired release tag/version
+          release_name: Release v1.0.0  # Replace with your desired release name
+          body: |
+            Release notes for v1.0.0  # Replace with your release notes
 
-      # Example Terraform apply step:
-      # - name: Terraform Apply
-      #   run: terraform apply -auto-approve
-
-      # You can also use GitHub Releases to create a release with your Terraform code as an artifact.
-      name: Terraform CI/CD
-
-      on:
-        push:
-          branches:
-            - main
-        pull_request:
-          branches:
-            - main
-      
-      jobs:
-        terraform_validation:
-          name: Terraform Validation
-          runs-on: ubuntu-latest
-      
-          steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
-      
-            - name: Set up Terraform
-              uses: hashicorp/setup-terraform@v1
-              with:
-                terraform_version: "1.0.9"  # Replace with your preferred Terraform version
-      
-            - name: Terraform Init
-              run: terraform init
-      
-            - name: Terraform Format Check
-              run: terraform fmt -check
-      
-            - name: Terraform Validate
-              run: terraform validate
-      
-        terraform_scan:
-          name: Terraform Security Scanning
-          runs-on: ubuntu-latest
-      
-          steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
-      
-            - name: Run Terraform TFLint
-              uses: terraform-linters/tflint-action@v2
-      
-        terraform_release:
-          name: Terraform Release
-          needs: [terraform_validation, terraform_scan]
-          runs-on: ubuntu-latest
-          if: github.event_name == 'push'  # Only release on push to main branch
-      
-          steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
-      
-            # Add steps to perform the actual Terraform deployment here, such as using Terraform Cloud/Enterprise or CLI commands.
-      
-            # Example Terraform apply step:
-            # - name: Terraform Apply
-            #   run: terraform apply -auto-approve
-      
-            # You can also use GitHub Releases to create a release with your Terraform code as an artifact.
-      
+          draft: false
+          prerelease: false
