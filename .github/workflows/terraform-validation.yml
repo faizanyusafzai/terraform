@@ -20,6 +20,10 @@ jobs:
       - name: Validate Terraform
         run: terraform validate
 
+      # Add a comment as a recommendation
+      - name: Recommendation
+        run: echo "Recommendation: Please review the Terraform validation results for potential issues."
+
   static-code-analysis:
     name: Terraform Static Code Analysis
     runs-on: ubuntu-latest
@@ -41,6 +45,10 @@ jobs:
       - name: Run Terraform TFLint
         run: tflint
 
+      # Add a comment as a recommendation
+      - name: Recommendation
+        run: echo "Recommendation: Please review the Terraform TFLint results for potential issues."
+
   security-scanning:
     name: Terraform Security Scanning
     runs-on: ubuntu-latest
@@ -54,15 +62,17 @@ jobs:
 
       - name: Install TFSec
         run: |
-          curl -L -o tfsec https://github.com/tfsec/tfsec/releases/latest/download/tfsec-linux-amd64
+          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tfsec.zip
+          unzip tfsec.zip
           chmod +x tfsec
           sudo mv tfsec /usr/local/bin/
 
-      - name: Verify TFSec Installation
-        run: tfsec --version
-
       - name: Run Terraform TFSec
         run: tfsec
+
+      # Add a comment as a recommendation
+      - name: Recommendation
+        run: echo "Recommendation: Please review the Terraform TFSec results for potential issues."
 
   release:
     name: Create GitHub Release
@@ -89,3 +99,7 @@ jobs:
 
           draft: false
           prerelease: false
+
+      # Add a comment as a recommendation
+      - name: Recommendation
+        run: echo "Recommendation: The GitHub release v1.0.0 has been created. Please review the release notes."
