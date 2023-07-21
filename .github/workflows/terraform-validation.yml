@@ -20,9 +20,10 @@ jobs:
       - name: Validate Terraform
         run: terraform validate
 
-      # Add a comment as a recommendation
-      - name: Recommendation
-        run: echo "Recommendation: Please review the Terraform validation results for potential issues."
+      # Recommendation step for validation
+      - name: Recommendation for Validation
+        run: |
+          echo "Recommendation: Please review the output of Terraform validation."
 
   static-code-analysis:
     name: Terraform Static Code Analysis
@@ -45,9 +46,10 @@ jobs:
       - name: Run Terraform TFLint
         run: tflint
 
-      # Add a comment as a recommendation
-      - name: Recommendation
-        run: echo "Recommendation: Please review the Terraform TFLint results for potential issues."
+      # Recommendation step for static code analysis
+      - name: Recommendation for Static Code Analysis
+        run: |
+          echo "Recommendation: Please review the Terraform TFLint results for potential issues."
 
   security-scanning:
     name: Terraform Security Scanning
@@ -70,9 +72,10 @@ jobs:
       - name: Run Terraform TFSec
         run: tfsec
 
-      # Add a comment as a recommendation
-      - name: Recommendation
-        run: echo "Recommendation: Please review the Terraform TFSec results for potential issues."
+      # Recommendation step for security scanning
+      - name: Recommendation for Security Scanning
+        run: |
+          echo "Recommendation: Please review the Terraform TFSec results for potential issues."
 
   release:
     name: Create GitHub Release
@@ -100,6 +103,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Add a comment as a recommendation
-      - name: Recommendation
-        run: echo "Recommendation: The GitHub release v1.0.0 has been created. Please review the release notes."
+      # Recommendation step for release
+      - name: Recommendation for Release
+        run: | 
+            echo "Recommendation: The GitHub release v1.0.0 has been created. Please review the release notes."
