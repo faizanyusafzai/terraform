@@ -68,10 +68,9 @@ jobs:
           unzip tfsec.zip
           chmod +x tfsec
           sudo mv tfsec /usr/local/bin/
-        continue-on-error: true
 
       - name: Run Terraform TFSec
-        run: tfsec
+        run: /usr/local/bin/tfsec
 
       # Recommendation step for security scanning
       - name: Recommendation for Security Scanning
@@ -106,5 +105,5 @@ jobs:
 
       # Recommendation step for release
       - name: Recommendation for Release
-        run: | 
-            echo "Recommendation: The GitHub release v1.0.0 has been created. Please review the release notes."
+        run: |
+          echo "Recommendation: The GitHub release v1.0.0 has been created. Please review the release notes."
