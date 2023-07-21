@@ -97,20 +97,40 @@ jobs:
       - name: Recommendation for Security Scanning
         run: |
           echo "Recommendation: Please review the Terraform TFSec results for potential issues."
-    
-  terraform-plan:
-    name: Terraform Plan
+
+  release:
+    name: Create GitHub Release
+    needs:
+      - validate
+      - static-code-analysis
+      - security-scanning
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print OS and Architecture
+        run: |
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0  # Replace with your desired release tag/version
+          release_name: Release v1.0.0  # Replace with your desired release name
+          body: |
+            Release notes for v1.0.0  # Replace with your release notes
 
-      - name: Terraform Init
-        run: terraform init
+          draft: false
+          prerelease: false
 
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+      # Recommendation step for release
+      - name: Recommendation for Release
+        run: |
+          echo "Recommendation: The GitHub release v1.0.0 has been created. Please review the release notes."
+
