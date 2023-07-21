@@ -74,6 +74,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Download tfsec.zip artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: tfsec-zip
+          path: .
+
+      - name: Unzip tfsec.zip
+        run: unzip tfsec.zip
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
