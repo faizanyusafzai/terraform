@@ -62,8 +62,12 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Set up tfsec
-        uses: hashicorp/setup-tfsec@v0.3.0
+      - name: Install TFSec
+        run: |
+          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tfsec.zip
+          unzip tfsec.zip
+          chmod +x tfsec
+          sudo mv tfsec /usr/local/bin/
 
       - name: Run Terraform TFSec
         run: tfsec
