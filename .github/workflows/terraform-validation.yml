@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print OS and Architecture
+        run: |
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -30,6 +35,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print OS and Architecture
+        run: |
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -56,6 +66,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print OS and Architecture
+        run: |
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -64,7 +79,14 @@ jobs:
 
       - name: Install TFSec
         run: |
-          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tfsec
+          OS=$(uname -s)
+          ARCH=$(uname -m)
+          if [ "$OS" = "Linux" ] && [ "$ARCH" = "x86_64" ]; then
+            curl -L -o tfsec https://github.com/tfsec/tfsec/releases/latest/download/tfsec-linux-amd64
+          else
+            echo "Unsupported OS or Architecture for tfsec."
+            exit 1
+          fi
           chmod +x tfsec
           sudo mv tfsec /usr/local/bin/
 
