@@ -68,6 +68,7 @@ jobs:
           unzip tfsec.zip
           chmod +x tfsec
           sudo mv tfsec /usr/local/bin/
+        continue-on-error: true
 
       - name: Run Terraform TFSec
         run: /usr/local/bin/tfsec
