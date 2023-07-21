@@ -54,7 +54,7 @@ jobs:
 
       - name: Install TFSec
         run: |
-          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tfsec.zip
+          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[] | select(.name | contains("linux_amd64") and contains("tfsec")) | .browser_download_url')" > tfsec.zip
           unzip tfsec.zip
           chmod +x tfsec
           sudo mv tfsec /usr/local/bin/
