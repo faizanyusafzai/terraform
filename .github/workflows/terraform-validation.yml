@@ -1,0 +1,89 @@
+name: Terraform Validation and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Validate Terraform
+        run: terraform validate
+
+  static-code-analysis:
+    name: Terraform Static Code Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Install Terraform TFLint
+        run: |
+          curl -L "$(curl -Ls https://api.github.com/repos/terraform-linters/tflint/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tflint.zip
+          unzip tflint.zip
+          chmod +x tflint
+          sudo mv tflint /usr/local/bin/
+
+      - name: Run Terraform TFLint
+        run: tflint
+
+  security-scanning:
+    name: Terraform Security Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Install TFSec
+        run: |
+          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tfsec.zip
+          unzip tfsec.zip
+          chmod +x tfsec
+          sudo mv tfsec /usr/local/bin/
+
+      - name: Run Terraform TFSec
+        run: tfsec
+
+  release:
+    name: Create GitHub Release
+    needs:
+      - validate
+      - static-code-analysis
+      - security-scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0  # Replace with your desired release tag/version
+          release_name: Release v1.0.0  # Replace with your desired release name
+          body: |
+            Release notes for v1.0.0  # Replace with your release notes
+
+          draft: false
+          prerelease: false
