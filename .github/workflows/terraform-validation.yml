@@ -33,7 +33,7 @@ jobs:
 
       - name: Install Terraform TFLint
         run: |
-          curl -L "$(curl -Ls https://api.github.com/repos/terraform-linters/tflint/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" -o tflint.zip
+          curl -L "$(curl -Ls https://api.github.com/repos/terraform-linters/tflint/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux_amd64"))')" > tflint.zip
           unzip tflint.zip
           chmod +x tflint
           sudo mv tflint /usr/local/bin/
@@ -52,15 +52,8 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Install TFSec
-        run: |
-          curl -L "$(curl -Ls https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[] | select(.name | contains("linux_amd64") and contains("tfsec")) | .browser_download_url')" > tfsec.zip
-          unzip tfsec.zip
-          chmod +x tfsec
-          sudo mv tfsec /usr/local/bin/
-
       - name: Run Terraform TFSec
-        run: tfsec
+        uses: tfsec/tfsec-action@v0.2.1
 
   release:
     name: Create GitHub Release
@@ -73,18 +66,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
-      - name: Download tfsec.zip artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: tfsec-zip
-          path: .
-
-      - name: List artifact contents
-        run: ls -alh
-
-      - name: Unzip tfsec.zip
-        run: unzip tfsec.zip
 
       - name: Create Release
         id: create_release
