@@ -91,7 +91,7 @@ jobs:
           sudo mv tfsec /usr/local/bin/
 
       - name: Run Terraform TFSec
-        run: tfsec
+        run: tfsec .
 
       # Recommendation step for security scanning
       - name: Recommendation for Security Scanning
