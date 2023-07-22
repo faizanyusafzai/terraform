@@ -107,11 +107,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Print OS and Architecture
-        run: |
-          echo "OS: $(uname -s)"
-          echo "Architecture: $(uname -m)"
-
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -121,10 +116,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1.0.0  # tag/version
-          release_name: Release v1.0.0  
+          tag_name: v1.0.0  # Replace with your desired release tag/version
+          release_name: Release v1.0.0  # Replace with your desired release name
           body: |
-            Release notes for v1.0.0  
+            Release notes for v1.0.0  # Replace with your release notes
 
           draft: false
           prerelease: false
@@ -133,4 +128,3 @@ jobs:
       - name: Recommendation for Release
         run: |
           echo "Recommendation: The GitHub release v1.0.0 has been created. Please review the release notes."
-
